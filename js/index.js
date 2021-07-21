@@ -2,6 +2,7 @@ function VideoInputTest(changeCallBack, containerElement) {
   this.containerElement =
     containerElement || document.querySelector("#video-input-check");
   this.changeCallBack = changeCallBack || function () {};
+  this.value = "";
   this.element = createElement({
     tagName: "video",
     attributes: {
@@ -10,6 +11,15 @@ function VideoInputTest(changeCallBack, containerElement) {
   });
   this.initDropdown = async function () {
     const { listVideoInput } = await getListDevices();
+    if (!listVideoInput.length) {
+      listVideoInput.push({
+        deviceId: "",
+        label: "Default",
+      });
+    }
+    if (listVideoInput.length === 1) {
+      this.value = listVideoInput[0].deviceId;
+    }
     const videoDeviceItems = listVideoInput.map((videoDevice) => {
       const item = {
         tagName: "option",
@@ -35,7 +45,7 @@ function VideoInputTest(changeCallBack, containerElement) {
           // Change audio destination
           const value = e.target.value;
           this.value = value;
-          localStorage.setItem("videoInputID", this.value);
+          // localStorage.setItem("videoInputID", this.value);
           await this.setStream();
           this.changeCallBack(this.value);
         },
@@ -81,6 +91,7 @@ function AudioInputTest(changeCallBack, containerElement) {
     containerElement || document.querySelector("#audio-input-check");
   this.changeCallBack = changeCallBack || function () {};
   this.PID_LENGTH = 10;
+  this.value = "";
   this.AudioContext =
     window["AudioContext"] ||
     window["webkitAudioContext"] ||
@@ -104,7 +115,7 @@ function AudioInputTest(changeCallBack, containerElement) {
       })
       .catch((err) => console.log("Err when get permission Audio", err));
     if (this.MEDIA_STREAM) {
-      this.context = new AudioContext();
+      this.context = new this.AudioContext();
       var analyser = this.context.createAnalyser();
       var microphone = this.context.createMediaStreamSource(this.MEDIA_STREAM);
       var javascriptNode = this.context.createScriptProcessor(2048, 1, 1);
@@ -128,20 +139,33 @@ function AudioInputTest(changeCallBack, containerElement) {
   };
   this.nextValue = function (e) {
     const rate = Math.floor(e / 10);
-    console.log(rate);
-    const pids = document.querySelectorAll(".pid");
-    if (pids) {
-      Array.from(pids).forEach((element, index) => {
-        if (index <= rate) {
-          element.classList.add("rate");
-        } else {
-          element.classList.remove("rate");
-        }
-      });
+    if (rate) {
+      const pids = document.querySelectorAll(".pid");
+      if (pids) {
+        Array.from(pids).forEach((element, index) => {
+          if (index <= rate) {
+            element.classList.add("rate");
+          } else {
+            element.classList.remove("rate");
+          }
+        });
+      }
     }
   };
   this.initDropdown = async function () {
     const { listAudioInput } = await getListDevices();
+    if (!listAudioInput.length) {
+      listAudioInput.push({
+        deviceId: "",
+        label: "Default",
+      });
+    }
+    if (listAudioInput.length === 1) {
+      this.value = listAudioInput[0].deviceId;
+    }
+    if (listAudioInput.length === 1) {
+      this.value = listAudioInput[0].deviceId;
+    }
     const audioDeviceItems = listAudioInput.map((audioDevice) => {
       const item = {
         tagName: "option",
@@ -167,7 +191,7 @@ function AudioInputTest(changeCallBack, containerElement) {
           // Change audio destination
           const value = e.target.value;
           this.value = value;
-          localStorage.setItem("audioInputID", this.value);
+          // localStorage.setItem("audioInputID", this.value);
           await this.setStream();
           this.changeCallBack(this.value);
         },
@@ -178,7 +202,7 @@ function AudioInputTest(changeCallBack, containerElement) {
   };
   this.render = async function () {
     let pids = [];
-    for (let index = 0; index < PID_LENGTH; index++) {
+    for (let index = 0; index < this.PID_LENGTH; index++) {
       pids.push({
         tagName: "div",
         attributes: {
@@ -193,23 +217,23 @@ function AudioInputTest(changeCallBack, containerElement) {
       },
       children: pids,
     });
-    await this.initDropdown();
     await this.setStream();
+    await this.initDropdown();
     this.containerElement.appendChild(this.element);
   };
 }
 
-function AudioOutputTest(changeCallBack, containerElement) {
+function AudioOutputTest(changeCallBack, containerElement, audioSrc) {
   this.containerElement =
     containerElement || document.querySelector("#audio-output-check");
   this.changeCallBack = changeCallBack || function () {};
   this.audio = new Audio();
-  this.audio.src = "/assets/output-test.mp3";
+  this.audio.src = audioSrc || "/assets/output-test.mp3";
   this.audio.load();
   this.audio.onended = () => {
     this.element.removeAttribute("disabled");
   };
-  this.value = "default";
+  this.value = "";
   this.setSink = function () {
     if (typeof this.audio.sinkId !== "undefined") {
       this.audio
@@ -220,10 +244,10 @@ function AudioOutputTest(changeCallBack, containerElement) {
     }
   };
   this.render = async function () {
-    // Set default value;
-    localStorage.getItem("audioOutPutID");
-    this.value = localStorage.getItem("audioOutPutID") || "default";
-    this.setSink();
+    // // Set default value;
+    // localStorage.getItem("audioOutPutID");
+    // this.value = localStorage.getItem("audioOutPutID") || "";
+    // this.setSink();
     const stream = await navigator.mediaDevices // Asking Permission to get List  devices
       .getUserMedia({
         audio: true,
@@ -253,7 +277,7 @@ function AudioOutputTest(changeCallBack, containerElement) {
     const { listAudioOutput } = await getListDevices();
     if (!listAudioOutput.length) {
       listAudioOutput.push({
-        deviceId: "default",
+        deviceId: "",
         label: "Default",
       });
     }
@@ -282,7 +306,7 @@ function AudioOutputTest(changeCallBack, containerElement) {
           // Change audio destination
           const value = e.target.value;
           this.value = value;
-          localStorage.setItem("audioOutPutID", this.value);
+          // localStorage.setItem("audioOutPutID", this.value);
           // setSinkId does not support android
           this.setSink();
           this.changeCallBack(this.value);
@@ -298,22 +322,45 @@ function AudioOutputTest(changeCallBack, containerElement) {
 // MAIN
 window.addEventListener("DOMContentLoaded", async (event) => {
   /**
-   * Each Class have 2 params
-   * - Callback when changing device
-   * - Parent Element To append Device test (Default will looking for #[video/audio]-[input/output]-check)
-   * 
-   * Example:
-   * const videoCustomContainer = document.querySelector('#custom-id');
-   * const customEventWhenChangeDevice = function(value){
-   *  alert(value)
-   * }
-   * const audioInputTest = new AudioInputTest(customEventWhenChangeDevice, videoCustomContainer);
+   * - Value of device is in the property "value"
+   * - It will auto store the device ID to localStrorage when you change the device
    */
 
-  const audioInputTest = new AudioInputTest();
+  /**
+   * TODO:
+   * - Implement call get deviceList only  1 time
+   * - Allow to custom test sound [v]
+   * - Make version for ReactJS
+   * - Buid to use with NPM
+   * - Buid to use with CDN
+   */
+
+  // Default Usage
+  const audioInputTest = new AudioInputTest(); // Looking for #audio-input-check
   audioInputTest.render();
-  const videoInputTest = new VideoInputTest();
+  const videoInputTest = new VideoInputTest(); // Looking for #video-input-check
   videoInputTest.render();
-  const audioOutputTest = new AudioOutputTest();
+  const audioOutputTest = new AudioOutputTest(); // Looking for #audio-output-check
   audioOutputTest.render();
+
+  /**
+   * // ===== Custom container, callback and sound
+   * const audioCustomContainer = document.querySelector("#audio-output-custom");
+   * const customCallBack = function (val) {
+   *    console.log(val);
+   * };
+   * const audioOutputTest = new AudioOutputTest(customCallBack,audioCustomContainer,"https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3");
+   * audioOutputTest.render();
+   */
+
+  // Example: Get all value
+  document
+    .querySelector("button#demo-apply")
+    .addEventListener("click", function () {
+      console.log("Values:", {
+        audioInput: audioInputTest.value,
+        audioOutput: audioOutputTest.value,
+        videoInput: videoInputTest.value,
+      });
+    });
 });

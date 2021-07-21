@@ -54,6 +54,7 @@
   align-items: flex-end;
 }
 #video-input-check video {
+  background: black;
   max-width: 150px;
 }
 
