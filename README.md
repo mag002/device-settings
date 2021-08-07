@@ -65,33 +65,30 @@ This is demo for device setting component with video, audio input, and audio out
 ## APIs:
 * **VideoInputTest**(changeCallBack, containerElement, customVideoElement):
 
-Property/Method | Default value | Description
+Property | Default value | Description
 ------------ | ------------- | -------------
 containerElement |  ```<div id="video-input-check"></div>``` | Container for Testing Video and List Video Devices. (Can change by passing **containerElement** argument)
 element | ```<video class="test-video"></video>``` | Testing Video Elent (Can change by passing **customVideoElement** argument)
 changeCallBack |  null | Event Callback when you change the device  (Can change by passing **changeCallBack** argument)
 value | '' | The selected Device ID
-render() | | Render the Video Input Test component
 
 * **AudioInputTest**(changeCallBack, containerElement):
 
-Property/Method | Default value | Description
+Property | Default value | Description
 ------------ | ------------- | -------------
 containerElement |  ```<div id="video-input-check"></div>``` | Container for Testing Video and List Video Devices. (Can change by passing **containerElement** argument)
 changeCallBack |  null | Event Callback when you change the device  (Can change by passing **changeCallBack** argument)
 value | '' | The selected Device ID
 PID_LENGTH | 10 | The number of the pid
-render() | | Render the Audio Input Test component
 
 * **AudioOutputTest**(changeCallBack, containerElement, audioSrc):
 
-Property/Method | Default value | Description
+Property | Default value | Description
 ------------ | ------------- | -------------
 containerElement |  ```<div id="video-input-check"></div>``` | Container for Testing Video and List Video Devices. (Can change by passing **containerElement** argument)
 audio | HTMLAudioElement | Audio elment, playing the Audio file 
 audio.src | /assets/output-test.mp3 | Audio sound (Can change Sound by passing **audioSrc** argument)
 changeCallBack |  null | Event Callback when you change the device  (Can change by passing **changeCallBack** argument)
 value | '' | The selected Device ID
-render() | | Render the Audio Output Test component
 
  
