@@ -1,5 +1,7 @@
 # Device settings component for Video Application
-This is demo for device setting component with video, audio input, and audio output test
+This is demo for device setting component with video, audio input, and audio output test.
+
+Example: https://mag002.github.io/device-settings
 ## Default Usage
 * HTML:
 
